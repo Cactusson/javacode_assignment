@@ -21,10 +21,6 @@ class WalletDetail(generics.RetrieveAPIView):
     serializer_class = WalletSerializer
     lookup_field = "uuid"
 
-    @method_decorator(cache_page(60 * 60 * 2))
-    def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
-
 
 class WalletOperation(APIView):
     def post(self, request, uuid):

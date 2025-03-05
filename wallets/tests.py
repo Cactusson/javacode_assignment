@@ -36,6 +36,13 @@ class TestWalletList(APITestCase):
         response = self.client.post(self.url, {"balance": "---"}, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_new_wallet_appears_in_the_list(self):
+        self.client.get(self.url)
+        response = self.client.post(self.url, {"balance": 100}, format="json")
+        uuid, balance = response.json()['uuid'], response.json()['balance']
+        response = self.client.get(self.url, format="json").json()
+        self.assertIn({'uuid': uuid, 'balance': balance}, response)
+
 
 class TestWalletDetail(APITestCase):
     def test_wallet_does_not_exist(self):
@@ -140,3 +147,11 @@ class TestOperation(APITestCase):
         )
         self.full_wallet.refresh_from_db()
         self.assertEqual(self.full_wallet.balance, 900)
+
+    def test_balance_has_changed(self):
+        wallet = Wallet.objects.create(balance=100)
+        url = reverse("wallet-detail", kwargs={"uuid": wallet.uuid})
+        self.client.get(url, format="json").json()
+        self.make_request(wallet.uuid, {"operationType": "DEPOSIT", "amount": "100"})
+        response = self.client.get(url, format="json")
+        self.assertEqual(response.json()['balance'], "200.00")
