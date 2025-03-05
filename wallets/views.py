@@ -15,10 +15,6 @@ class WalletList(generics.ListCreateAPIView):
     queryset = Wallet.objects.all()
     serializer_class = WalletSerializer
 
-    @method_decorator(cache_page(60 * 60 * 2))
-    def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
-
 
 class WalletDetail(generics.RetrieveAPIView):
     queryset = Wallet.objects.all()
